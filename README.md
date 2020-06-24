@@ -15,17 +15,17 @@ the code in the `craigslist/` directory.
 ### Aurora Setup
 Setup an AWS Aurora MySQL Instance and execute the query in `sql/create_table.sql`.
 
-Execute the SQL in `sql/create_scrape_keywords_procedure.sql`. Ensure to replace the
+Execute the query in `sql/create_scrape_keywords_procedure.sql`. Ensure to replace the
 ARN placeholder with the ARN of the Lambda you just created.
 
 Follow the steps [here](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Integrating.Lambda.html) here to give Aurora permission to access Lambda.
 
-You can the following SQL run to ensure that Aurora can invoke the Lambda.
+You can manually scrape the keywords by executing this query:
 ```sql
 CALL scrape_keywords();
 ```
 
-You can now optionally execute the SQL in `sql/create_scrape_keywords_event.sql` to create
+Or you can now execute the query in `sql/create_scrape_keywords_event.sql` to create
 an event that will execute the `scrape_keywords` stored procedure every 12 hours.
 
 ### Adding Keywords
