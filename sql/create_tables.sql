@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS sent_listings;
+DROP TABLE IF EXISTS keywords;
+
+CREATE TABLE keywords (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    email varchar(100) NOT NULL,
+    category varchar(50) NOT NULL,
+    keyword varchar(100) NOT NULL
+);
+
 CREATE TABLE sent_listings (
     id int AUTO_INCREMENT PRIMARY KEY,
     keyword_id int NOT NULL,
