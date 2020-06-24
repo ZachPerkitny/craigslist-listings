@@ -1,11 +1,12 @@
 # Craigslist Listing Notifications
 Sends an email with new listings for a provided keyword.
 
-The repo contains the code for the lambda function as well as the
-SQL queries for creating the tables used by the lambda function.
+The repo contains the code for the Lambda function as well as the
+SQL queries for creating the necessary tables, stored procedures and
+events.
 
-The lambda function is invoked from a stored procedure which is
-executed on a 12 hour schedule.
+The Lambda function can be executed manually or executed on a schedule by
+the MySQL event scheduler.
 
 ### Lambda Setup
 Create a new Python 3.7 Lambda and see [this tutorial](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html) to learn how to create a deployment package from
@@ -19,7 +20,7 @@ ARN placeholder with the ARN of the Lambda you just created.
 
 Follow the steps [here](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Integrating.Lambda.html) here to give Aurora permission to access Lambda.
 
-You can run to ensure that Aurora can invoke the Lambda.
+You can the following SQL run to ensure that Aurora can invoke the Lambda.
 ```sql
 CALL scrape_keywords();
 ```
