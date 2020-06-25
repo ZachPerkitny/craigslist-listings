@@ -6,8 +6,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+
+
+Base = automap_base()
+print(os.getenv('DATABASE_URI'))
+engine = create_engine(os.getenv('DATABASE_URI'))
+Base.prepare(engine, reflect=True)
+
+CraigslistSearchUrl = Base.classes.craigslist_search_urls
+Keyword = Base.classes.keywords
+
 
 def handler(event, context):
+    session = Session(engine)
+
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -28,25 +43,31 @@ def handler(event, context):
      
     driver = webdriver.Chrome(chrome_options=chrome_options)
 
+    keyword = Keyword.query.get(event['keyword_id'])
+
     url = 'https://www.searchtempest.com/search?' + urlencode({
-        'search_string': event['keyword'],
-        'category': event['category'],
+        'search_string': keyword.keyword,
+        'category': keyword.category,
         'cityselect': 'zip',
-        'location': event['zip_code'],
-        'maxDist': event['within'],
+        'location': keyword.zip_code,
+        'maxDist': keyword.within,
         'Region': 'combined'
     })
     driver.get(url)
 
-    container = WebDriverWait(driver, 2).until(
+    container = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.ID, 'containerUS'))
     )
-    links = []
     for result in container.find_elements_by_class_name('directResult'):
         try:
             link = result.find_element_by_xpath('.//a[contains(@class, "thumbnailLink")]')
-            links.append(link.get_attribute('href'))
+            session.add(CraigslistSearchUrls(
+                keyword=keyword,
+                search_url=link.get_attribute('href'))
+            )
         except:
             continue
 
-    return links
+    session.commit()
+
+    return None

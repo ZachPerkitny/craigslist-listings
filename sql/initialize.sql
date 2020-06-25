@@ -1,7 +1,9 @@
 DROP TABLE IF EXISTS sent_listings;
+DROP TABLE IF EXISTS craigslist_search_urls;
 DROP TABLE IF EXISTS keywords;
 DROP TABLE IF EXISTS categories;
 DROP PROCEDURE IF EXISTS get_craigslist_listings;
+DROP TRIGGER IF EXISTS keyword_trigger;
 DROP EVENT IF EXISTS get_craigslist_listings_event;
 
 CREATE TABLE categories (
@@ -21,16 +23,6 @@ CREATE TABLE keywords (
         ON DELETE CASCADE
 );
 
-CREATE TABLE sent_listings (
-    id int AUTO_INCREMENT PRIMARY KEY,
-    keyword_id int NOT NULL,
-    craigslist_url varchar(1000) NOT NULL,
-    INDEX keyword_cl_ind(keyword_id, craigslist_url),
-    FOREIGN KEY (keyword_id)
-        REFERENCES keywords(id)
-        ON DELETE CASCADE
-);
-
 CREATE TABLE craigslist_search_urls (
     id int AUTO_INCREMENT PRIMARY KEY,
     keyword_id int NOT NULL,
@@ -38,6 +30,14 @@ CREATE TABLE craigslist_search_urls (
     INDEX keyword_id_ind(keyword_id),
     FOREIGN KEY (keyword_id)
         REFERENCES keywords(id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE sent_listings (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    craigslist_search_url_id int NOT NULL,
+    FOREIGN KEY (craigslist_search_url_id)
+        REFERENCES craigslist_search_urls(id)
         ON DELETE CASCADE
 );
 
@@ -66,7 +66,7 @@ CREATE TRIGGER keyword_trigger
     AFTER INSERT
     ON keywords FOR EACH ROW
 BEGIN
-    SELECT lambda_sync(
+    CALL lambda_async(
         'arn:aws:lambda:REGION:ID:function:NAME',
         CONCAT('{"email":"', NEW.email,
         '", "category":"', NEW.category,

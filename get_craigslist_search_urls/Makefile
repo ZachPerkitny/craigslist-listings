@@ -20,6 +20,7 @@ docker-build:
 
 docker-run:
 	docker run\
+		--env DATABASE_URI=$(DATABASE_URI)\
 		--env PYTHONPATH=/var/task/src:/var/task/lib\
 		--env PATH=/var/task/bin\
 		--volume=$(shell pwd)/src/:/var/task/src/\
