@@ -9,18 +9,18 @@ The Lambda function can be executed manually or executed on a schedule by
 the MySQL event scheduler.
 
 ### Requirements
-Install Docker and dependencies
-* `make fetch-dependencies`
 * [Installing Docker](https://docs.docker.com/engine/installation/#get-started)
-* [Installing Docker compose](https://docs.docker.com/compose/install/#install-compose)
+
+#### `get_craiglist_search_urls` Only
+* `make fetch-dependencies`
 
 ### Running Locally
 Run `make docker-build` to build each Lambda image and `make docker-run` to execute
 the Lambda Functions locally.
 
 ### Running in the Cloud
-Create two new Lambda Functions (Python 3.7) ane execute `make build-zip` in the `get_craigslist_search_urls` and 
-`get_craigslist_listings` directories and upload the zipfiles to AWS.
+Create two new Lambda Functions (Python 3.7) and execute `make build-zip`
+and upload the zipfiles to AWS.
 
 Create an AWS Aurora MySQL Instance and execute the query in `sql/initialize.sql`. Remember to replace the ARN
 placeholders with the ARNs of the Lambdas you just created.
