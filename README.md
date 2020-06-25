@@ -8,36 +8,42 @@ events.
 The Lambda function can be executed manually or executed on a schedule by
 the MySQL event scheduler.
 
-### Lambda Setup
-Create a new Python 3.7 Lambda and see [this tutorial](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html) to learn how to create a deployment package from
-the code in the `craigslist/` directory.
+### Requirements
+Install Docker and dependencies
+* `make fetch-dependencies`
+* [Installing Docker](https://docs.docker.com/engine/installation/#get-started)
+* [Installing Docker compose](https://docs.docker.com/compose/install/#install-compose)
 
-### Aurora Setup
-Setup an AWS Aurora MySQL Instance and execute the query in `sql/create_table.sql`.
+### Running Locally
+TODO
 
-Execute the query in `sql/create_scrape_keywords_procedure.sql`. Ensure to replace the
-ARN placeholder with the ARN of the Lambda you just created.
+### Running in the Cloud
+Create two new Lambda Functions (Python 3.7) ane execute `make build-zip` in the `get_craigslist_search_urls` and 
+`get_craigslist_listings` directories and upload the zipfiles to AWS.
+
+Create an AWS Aurora MySQL Instance and execute the query in `sql/initialize.sql`. Remember to replace the ARN
+placeholders with the ARNs of the Lambdas you just created.
 
 Follow the steps [here](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Integrating.Lambda.html) here to give Aurora permission to access Lambda.
 
+The Lambda Function will be executed every 12 hours by the MySQL event scheduler OR:
 You can manually scrape the keywords by executing this query:
 ```sql
-CALL scrape_keywords();
+CALL get_craigslist_listings();
 ```
 
-Or you can now execute the query in `sql/create_scrape_keywords_event.sql` to create
-an event that will execute the `scrape_keywords` stored procedure every 12 hours.
-
 ### Adding Keywords
-If you want to receive notifications for specific category/keyword pair, insert a row
+If you want to receive notifications for specific category/keyword pairs, insert a row
 into the `keywords` table and the listings will be scraped on the next invocation of
-`scrape_keywords`.
+`get_craigslist_listings`.
 
 ```sql
-INSERT INTO keywords (email, category, keyword)
+INSERT INTO keywords (email, category_id, keyword, zip_code, within)
 VALUES (
     'my@email.com',
-    'category',
-    'keyword'
+    (SELECT id FROM categories WHERE name='jobs'),
+    'keyword',
+    '55555',
+    50000
 );
 ```
