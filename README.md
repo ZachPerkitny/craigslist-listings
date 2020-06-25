@@ -1,5 +1,5 @@
-# Craigslist Listing Notifications
-Sends an email with new listings for a provided keyword.
+# Craigslist Listings
+Retrieves new Craigslist listings for a provided keyword and location.
 
 The repo contains the code for the Lambda function as well as the
 SQL queries for creating the necessary tables, stored procedures and
@@ -15,7 +15,8 @@ Install Docker and dependencies
 * [Installing Docker compose](https://docs.docker.com/compose/install/#install-compose)
 
 ### Running Locally
-TODO
+Run `make docker-build` to build each Lambda image and `make docker-run` to execute
+the Lambda Functions locally.
 
 ### Running in the Cloud
 Create two new Lambda Functions (Python 3.7) ane execute `make build-zip` in the `get_craigslist_search_urls` and 
@@ -33,7 +34,7 @@ CALL get_craigslist_listings();
 ```
 
 ### Adding Keywords
-If you want to receive notifications for specific category/keyword pairs, insert a row
+If you want to get listings for specific category/keyword pairs, insert a row
 into the `keywords` table and the listings will be scraped on the next invocation of
 `get_craigslist_listings`.
 

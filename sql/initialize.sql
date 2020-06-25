@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS sent_listings;
+DROP TABLE IF EXISTS craigslist_listings;
 DROP TABLE IF EXISTS craigslist_search_urls;
 DROP TABLE IF EXISTS keywords;
 DROP TABLE IF EXISTS categories;
@@ -27,18 +27,18 @@ CREATE TABLE craigslist_search_urls (
     id int AUTO_INCREMENT PRIMARY KEY,
     keyword_id int NOT NULL,
     search_url varchar(1000) NOT NULL,
-    INDEX keyword_id_ind(keyword_id),
     FOREIGN KEY (keyword_id)
         REFERENCES keywords(id)
         ON DELETE CASCADE
 );
 
-CREATE TABLE sent_listings (
+CREATE TABLE craigslist_listings (
     id int AUTO_INCREMENT PRIMARY KEY,
     craigslist_search_url_id int NOT NULL,
+    listing_url varchar(1000) UNIQUE NOT NULL,
     FOREIGN KEY (craigslist_search_url_id)
         REFERENCES craigslist_search_urls(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE 
 );
 
 # Insert Categories
@@ -55,7 +55,7 @@ DELIMITER $$
 
 CREATE PROCEDURE get_craigslist_listings ()
 BEGIN
-    SELECT mysql.lambda_async(
+    SELECT lambda_async(
         'arn:aws:lambda:REGION:ID:function:NAME',
         CONCAT('{"search_url_id":"', id, '"}')
     )
