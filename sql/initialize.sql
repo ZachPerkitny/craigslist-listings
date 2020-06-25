@@ -55,9 +55,9 @@ DELIMITER $$
 
 CREATE PROCEDURE get_craigslist_listings ()
 BEGIN
-    SELECT lambda_async(
+    SELECT mysql.lambda_async(
         'arn:aws:lambda:REGION:ID:function:NAME',
-        CONCAT('{"url":"', search_url, '"}')
+        CONCAT('{"search_url_id":"', id, '"}')
     )
     FROM craigslist_search_urls;
 END$$
@@ -66,13 +66,9 @@ CREATE TRIGGER keyword_trigger
     AFTER INSERT
     ON keywords FOR EACH ROW
 BEGIN
-    CALL lambda_async(
+    CALL mysql.lambda_async(
         'arn:aws:lambda:REGION:ID:function:NAME',
-        CONCAT('{"email":"', NEW.email,
-        '", "category":"', NEW.category,
-        '", "keyword":"', NEW.keyword, 
-        '", "zip_code":"', NEW.zip_code, 
-        '", "within":"', NEW.within, '"}')
+        CONCAT('{"keyword_id":"', NEW.id, '"}')
     );
 END$$
 
