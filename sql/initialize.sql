@@ -13,7 +13,6 @@ CREATE TABLE categories (
 
 CREATE TABLE keywords (
     id int AUTO_INCREMENT PRIMARY KEY,
-    email varchar(100) NOT NULL,
     category_id int NOT NULL,
     keyword varchar(100) NOT NULL,
     zip_code varchar(5) NOT NULL,
@@ -36,6 +35,8 @@ CREATE TABLE craigslist_listings (
     id int AUTO_INCREMENT PRIMARY KEY,
     craigslist_search_url_id int NOT NULL,
     listing_url varchar(1000) UNIQUE NOT NULL,
+    time_scraped datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    INDEX time_scraped_ind(time_scraped),
     FOREIGN KEY (craigslist_search_url_id)
         REFERENCES craigslist_search_urls(id)
         ON DELETE CASCADE 
