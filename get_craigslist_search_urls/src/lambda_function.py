@@ -62,6 +62,7 @@ def handler(event, context):
     url = 'https://www.searchtempest.com/search?' + urlencode({
         'search_string': keyword.keyword,
         'category': keyword.category_id,
+        'subcat': keyword.subcategory_id,
         'cityselect': 'zip',
         'location': keyword.zip_code,
         'maxDist': keyword.within,
