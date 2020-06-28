@@ -70,7 +70,7 @@ def handler(event, context):
     })
     driver.get(url)
 
-    container = WebDriverWait(driver, 5).until(
+    container = WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.ID, 'containerUS'))
     )
     driver.execute_script("window.stop();")
