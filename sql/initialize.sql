@@ -59,9 +59,9 @@ CREATE PROCEDURE get_craigslist_listings ()
 BEGIN
     SELECT lambda_async(
         'arn:aws:lambda:REGION:ID:function:NAME',
-        CONCAT('{"search_url_id":"', id, '"}')
+        CONCAT('{"keyword_id":"', id, '"}')
     )
-    FROM craigslist_search_urls;
+    FROM keywords;
 END$$
 
 CREATE TRIGGER keyword_trigger

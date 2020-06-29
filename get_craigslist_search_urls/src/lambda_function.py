@@ -9,11 +9,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import NullPool
 from sqlalchemy import create_engine
 
 
 Base = automap_base()
-engine = create_engine(os.getenv('DATABASE_URI'))
+engine = create_engine(os.getenv('DATABASE_URI'), poolclass=NullPool)
 Base.prepare(engine, reflect=True)
 
 CraigslistSearchUrl = Base.classes.craigslist_search_urls
@@ -21,8 +22,6 @@ Keyword = Base.classes.keywords
 
 
 def handler(event, context):
-    session = Session(engine)
-
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
@@ -56,6 +55,7 @@ def handler(event, context):
         desired_capabilities=caps)
 
     keyword_id = event['keyword_id']
+    session = Session(engine)
     keyword = session.query(Keyword).get(keyword_id)
     if keyword is None:
         return
