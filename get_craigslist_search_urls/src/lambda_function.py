@@ -9,11 +9,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import NullPool
 from sqlalchemy import create_engine
 
 
 Base = automap_base()
-engine = create_engine(os.getenv('DATABASE_URI'))
+engine = create_engine(os.getenv('DATABASE_URI'), poolclass=NullPool)
 Base.prepare(engine, reflect=True)
 
 CraigslistSearchUrl = Base.classes.craigslist_search_urls
@@ -85,3 +86,4 @@ def handler(event, context):
         session.add(obj)
 
     session.commit()
+    session.close()
