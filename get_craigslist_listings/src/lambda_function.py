@@ -6,7 +6,6 @@ import requests
 
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy.pool import NullPool
 from sqlalchemy import create_engine
 
 
@@ -14,7 +13,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 Base = automap_base()
-engine = create_engine(os.getenv('DATABASE_URI'), poolclass=NullPool)
+engine = create_engine(os.getenv('DATABASE_URI'))
 Base.prepare(engine, reflect=True)
 
 CraigslistListing = Base.classes.craigslist_listings
@@ -48,7 +47,7 @@ def handler(event, context):
                 continue
             
             obj = CraigslistListing(
-                craigslist_search_url_id=craigslist_search_url_id,
+                craigslist_search_url_id=craigslist_search_url.id,
                 listing_url=listing_url)
             logger.info("adding new craigslist listing url: {0}".format(listing_url))
             session.add(obj)
