@@ -1,9 +1,9 @@
+import logging
 import os
 from urllib.parse import urlencode
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -12,6 +12,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 from sqlalchemy import create_engine
 
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 Base = automap_base()
 engine = create_engine(os.getenv('DATABASE_URI'), poolclass=NullPool)
@@ -46,13 +49,8 @@ def handler(event, context):
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
     chrome_options.binary_location = os.getcwd() + "/bin/headless-chromium"
-     
-    caps = DesiredCapabilities().CHROME
-    caps['pageLoadStrategy'] = 'none'
 
-    driver = webdriver.Chrome(
-        chrome_options=chrome_options,
-        desired_capabilities=caps)
+    driver = webdriver.Chrome(chrome_options=chrome_options)
 
     keyword_id = event['keyword_id']
     session = Session(engine)
@@ -68,22 +66,22 @@ def handler(event, context):
         'maxDist': keyword.within,
         'Region': 'combined'
     })
+    logger.info("getting url {0}".format(url))
     driver.get(url)
 
     container = WebDriverWait(driver, 15).until(
-        EC.presence_of_element_located((By.ID, 'containerUS'))
-    )
-    driver.execute_script("window.stop();")
+        EC.presence_of_element_located((By.ID, 'directResults'))
+    ) 
 
-    for link in container.find_elements_by_class_name('thumbnailLink'):
-        # HACK: SearchTempest likes to load a bunch of random shit,
-        # and it makes the script run a lot slower so calling window.stop
-        # a bunch solves this issue
-        driver.execute_script("window.stop();")
-        obj = CraigslistSearchUrl(
-            keyword_id=keyword_id,
-            search_url=link.get_attribute('href'))
+    i = 0
+    for link in container.find_elements_by_class_name('groupHref'):
+        search_url = link.get_attribute('href')
+        obj = CraigslistSearchUrl(keyword_id=keyword_id, search_url=search_url)
+        logger.info("adding new craigslist search url: {0}".format(search_url))
         session.add(obj)
+        i += 1
+
+    logger.info("added {0} new search urls".format(i))
 
     session.commit()
     session.close()

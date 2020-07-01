@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS keywords;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS subcategories;
 DROP PROCEDURE IF EXISTS get_craigslist_listings;
+DROP PROCEDURE IF EXISTS get_craigslist_search_urls;
 DROP TRIGGER IF EXISTS keyword_trigger;
 DROP EVENT IF EXISTS get_craigslist_listings_event;
 
@@ -62,6 +63,20 @@ BEGIN
         CONCAT('{"keyword_id":"', id, '"}')
     )
     FROM keywords;
+END$$
+
+CREATE PROCEDURE get_craigslist_search_urls ()
+BEGIN
+    SELECT lambda_async(
+        'arn:aws:lambda:REGION:ID:function:NAME',
+        CONCAT('{"keyword_id":"', id, '"}')
+    )
+    FROM keywords k
+    WHERE (
+        SELECT COUNT(*)
+        FROM craigslist_search_urls csl
+        WHERE csl.keyword_id = k.id
+    ) = 0;
 END$$
 
 CREATE TRIGGER keyword_trigger
